@@ -1,0 +1,13 @@
+.network-warning {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff3cd;
+  color: #856404;
+  padding: 10px 16px;
+  border: 1px solid #ffeeba;
+  border-radius: 6px;
+  font-size: 14px;
+  z-index: 9999;
+}
