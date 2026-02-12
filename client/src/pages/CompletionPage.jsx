@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useNavigate } from "react-router-dom";
+import AppHeader from "../components/common/AppHeader";
 
 export default function CompletionPage() {
   const navigate = useNavigate();

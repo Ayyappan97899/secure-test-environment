@@ -29,6 +29,7 @@ import FocusTracker from "../components/enforcement/FocusTracker";
 import FullscreenEnforcer from "../components/enforcement/FullscreenEnforcer";
 import useIpMonitor from "../hooks/useIpMonitor";
 import AppLoader from "../components/common/AppLoader";
+import AppHeader from "../components/common/AppHeader";
 
 const STORAGE_KEY = "secure_test_end_time";
 
