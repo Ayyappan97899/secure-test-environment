@@ -37,6 +37,7 @@ export default function AssessmentPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -92,17 +93,23 @@ export default function AssessmentPage() {
   }, [duration, attemptId, logEvent, handleSubmit]);
 
   // Run IP monitoring
-  useIpMonitor(
-    attemptId,
-    logEvent,
-    () => {
-      alert("Suspicious network change detected!");
+  const [suspiciousCount, setSuspiciousCount] = useState(0);
 
-      // Optional: auto submit
-      submitAttempt(attemptId);
+  const handleNetworkChange = useCallback(
+    (res) => {
+      if (res.classification === "POTENTIALLY_SUSPICIOUS") {
+        setSuspiciousCount(res.suspiciousCount);
+        setOpen(true);
+      }
+
+      if (res.status === "SUBMITTED") {
+        navigate("/complete");
+      }
     },
-    15000,
+    [navigate],
   );
+
+  useIpMonitor(attemptId, handleNetworkChange, 15000);
 
   if (loading) return null;
 
@@ -184,6 +191,21 @@ export default function AssessmentPage() {
           </CardContent>
         </Card>
       </Container>
+      {/*  Network Change Detected Dialog*/}
+
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>⚠ Network Change Detected</DialogTitle>
+        <DialogContent>
+          <Typography>Suspicious network activity detected.</Typography>
+          <Typography>Warning Count: {suspiciousCount}/2</Typography>
+          <Typography variant="body2" color="error">
+            After 2 suspicious changes, your assessment will auto-submit.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Continue</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

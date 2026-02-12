@@ -10,14 +10,6 @@ exports.startAttempt = async (req, res) => {
       startedAt: new Date(),
     });
 
-    if (classification === "POTENTIALLY_SUSPICIOUS") {
-      attempt.suspiciousCount += 1;
-
-      if (attempt.suspiciousCount >= 2) {
-        attempt.status = "SUBMITTED";
-      }
-    }
-
     res.status(201).json({
       attemptId: attempt._id,
       duration: attempt.duration, // ensure default duration exists in model

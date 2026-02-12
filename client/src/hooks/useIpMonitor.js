@@ -1,34 +1,25 @@
 import { useEffect, useRef } from "react";
 import { checkIp } from "../api/ipMonitor.api";
 
-export default function useIpMonitor(attemptId, logEvent, intervalMs = 15000) {
-  const warnedRef = useRef(false);
+export default function useIpMonitor(
+  attemptId,
+  onNetworkChange,
+  intervalMs = 15000,
+) {
   const checkingRef = useRef(false);
 
   useEffect(() => {
     if (!attemptId) return;
 
     const check = async () => {
-      if (checkingRef.current) return; // skip if previous call running
+      if (checkingRef.current) return;
       checkingRef.current = true;
 
       try {
         const res = await checkIp(attemptId);
 
-        // Log the IP check (offline-safe)
-        logEvent("IP_CHECK_PERFORMED");
-
-        if (res.changed && !warnedRef.current) {
-          warnedRef.current = true;
-          logEvent("IP_CHANGE_DETECTED", {
-            oldIp: res.oldIp,
-            newIp: res.newIp,
-            classification: res.classification,
-          });
-
-          if (res.classification === "POTENTIALLY_SUSPICIOUS") {
-            onNetworkChange?.();
-          }
+        if (res.changed && res.classification === "POTENTIALLY_SUSPICIOUS") {
+          onNetworkChange?.();
         }
       } catch (err) {
         console.warn("IP check failed", err);
@@ -37,12 +28,9 @@ export default function useIpMonitor(attemptId, logEvent, intervalMs = 15000) {
       }
     };
 
-    // Initial check
-    check();
-
-    // Interval check
+    check(); // initial
     const interval = setInterval(check, intervalMs);
 
     return () => clearInterval(interval);
-  }, [attemptId, intervalMs, logEvent]);
+  }, [attemptId, intervalMs, onNetworkChange]);
 }

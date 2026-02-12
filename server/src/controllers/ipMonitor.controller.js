@@ -1,3 +1,4 @@
+const Event = require("../models/Event.model");
 const Attempt = require("../models/Attempt.model");
 const { getClientIp } = require("../services/ipDetection.service");
 const { classifyIpChange } = require("../services/ipClassifier.service");
@@ -16,7 +17,6 @@ exports.checkIp = async (req, res) => {
       return res.status(404).json({ message: "Attempt not found" });
     }
 
-    // 🚫 If already submitted, stop here
     if (attempt.status === "SUBMITTED") {
       return res.json({
         changed: false,
@@ -27,17 +27,49 @@ exports.checkIp = async (req, res) => {
     const currentIp = getClientIp(req);
     const previousIp = attempt.ipAddress;
 
+    /* ================================
+       1️⃣ IP CHECK PERFORMED EVENT
+    ================================= */
+    await Event.create({
+      attemptId,
+      type: "IP_CHECK_PERFORMED",
+      metadata: { currentIp },
+    });
+
     let changed = false;
     let classification = "UNKNOWN";
 
     if (previousIp && previousIp !== currentIp) {
       changed = true;
+
       classification = classifyIpChange(previousIp, currentIp);
+
+      /* ================================
+         2️⃣ IP CHANGE DETECTED EVENT
+      ================================= */
+      await Event.create({
+        attemptId,
+        type: "IP_CHANGE_DETECTED",
+        metadata: {
+          oldIp: previousIp,
+          newIp: currentIp,
+        },
+      });
+
+      /* ================================
+         3️⃣ IP CLASSIFICATION EVENT
+      ================================= */
+      await Event.create({
+        attemptId,
+        type: "IP_CLASSIFIED",
+        metadata: {
+          classification,
+        },
+      });
 
       if (classification === "POTENTIALLY_SUSPICIOUS") {
         attempt.suspiciousCount += 1;
 
-        // 🚨 Auto submit after 2 suspicious changes
         if (attempt.suspiciousCount >= 2) {
           attempt.status = "SUBMITTED";
           attempt.submittedAt = new Date();
@@ -45,9 +77,7 @@ exports.checkIp = async (req, res) => {
       }
     }
 
-    // Always update latest IP
     attempt.ipAddress = currentIp;
-
     await attempt.save();
 
     return res.json({
