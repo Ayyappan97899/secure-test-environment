@@ -7,8 +7,6 @@ import {
   Button,
   Card,
   CardContent,
-  AppBar,
-  Toolbar,
   Alert,
   List,
   ListItem,
@@ -17,8 +15,8 @@ import {
   Divider,
   Stack,
 } from "@mui/material";
-import SecurityIcon from "@mui/icons-material/Security";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import AppHeader from "../components/common/AppHeader";
 
 export default function InstructionsPage() {
   const navigate = useNavigate();
@@ -42,12 +40,9 @@ export default function InstructionsPage() {
   return (
     <>
       {/* Top Navigation */}
-      <AppBar position="static" elevation={1}>
-        <Toolbar>
-          <SecurityIcon sx={{ mr: 1 }} />
-          <Typography variant="h6">Secure Test Environment</Typography>
-        </Toolbar>
-      </AppBar>
+      <AppHeader />
+
+      {/* Main Content */}
 
       <Container maxWidth="md" sx={{ mt: 8 }}>
         <Card elevation={6} sx={{ borderRadius: 3 }}>

@@ -4,11 +4,8 @@ import {
   Typography,
   Card,
   CardContent,
-  AppBar,
-  Toolbar,
   Button,
 } from "@mui/material";
-import SecurityIcon from "@mui/icons-material/Security";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useNavigate } from "react-router-dom";
 
@@ -17,13 +14,8 @@ export default function CompletionPage() {
 
   return (
     <>
-      {/* Top Bar */}
-      <AppBar position="static" elevation={1}>
-        <Toolbar>
-          <SecurityIcon sx={{ mr: 1 }} />
-          <Typography variant="h6">Secure Test Environment</Typography>
-        </Toolbar>
-      </AppBar>
+      {/* Top Navigation */}
+      <AppHeader />
 
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Card elevation={4}>

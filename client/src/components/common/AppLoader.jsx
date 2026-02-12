@@ -1,4 +1,4 @@
-export default function Loader({ text = "Loading..." }) {
+export default function AppLoader({ text = "Loading..." }) {
   return (
     <div
       style={{

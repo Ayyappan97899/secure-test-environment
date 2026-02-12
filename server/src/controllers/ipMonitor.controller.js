@@ -27,9 +27,8 @@ exports.checkIp = async (req, res) => {
     const currentIp = getClientIp(req);
     const previousIp = attempt.ipAddress;
 
-    /* ================================
-       1️⃣ IP CHECK PERFORMED EVENT
-    ================================= */
+    // IP CHECK PERFORMED EVENT
+
     await Event.create({
       attemptId,
       type: "IP_CHECK_PERFORMED",
@@ -44,9 +43,8 @@ exports.checkIp = async (req, res) => {
 
       classification = classifyIpChange(previousIp, currentIp);
 
-      /* ================================
-         2️⃣ IP CHANGE DETECTED EVENT
-      ================================= */
+      // IP CHANGE DETECTED EVENT
+
       await Event.create({
         attemptId,
         type: "IP_CHANGE_DETECTED",
@@ -56,9 +54,8 @@ exports.checkIp = async (req, res) => {
         },
       });
 
-      /* ================================
-         3️⃣ IP CLASSIFICATION EVENT
-      ================================= */
+      // IP CLASSIFICATION EVENT
+
       await Event.create({
         attemptId,
         type: "IP_CLASSIFIED",

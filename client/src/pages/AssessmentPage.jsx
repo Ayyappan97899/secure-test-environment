@@ -7,8 +7,6 @@ import {
   Button,
   Card,
   CardContent,
-  AppBar,
-  Toolbar,
   LinearProgress,
   Divider,
   TextField,
@@ -18,7 +16,6 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import SecurityIcon from "@mui/icons-material/Security";
 import TimerIcon from "@mui/icons-material/Timer";
 
 import useAttempt from "../hooks/useAttempt";
@@ -31,6 +28,7 @@ import ClipboardBlocker from "../components/enforcement/ClipboardBlocker";
 import FocusTracker from "../components/enforcement/FocusTracker";
 import FullscreenEnforcer from "../components/enforcement/FullscreenEnforcer";
 import useIpMonitor from "../hooks/useIpMonitor";
+import AppLoader from "../components/common/AppLoader";
 
 const STORAGE_KEY = "secure_test_end_time";
 
@@ -42,6 +40,7 @@ export default function AssessmentPage() {
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
+  const [suspiciousCount, setSuspiciousCount] = useState(0);
 
   const navigate = useNavigate();
 
@@ -97,7 +96,6 @@ export default function AssessmentPage() {
   }, [duration, attemptId, logEvent, handleSubmit]);
 
   // Run IP monitoring
-  const [suspiciousCount, setSuspiciousCount] = useState(0);
 
   const handleNetworkChange = useCallback(
     (res) => {
@@ -115,7 +113,7 @@ export default function AssessmentPage() {
 
   useIpMonitor(attemptId, handleNetworkChange, 15000);
 
-  if (loading) return null;
+  if (loading) return <AppLoader />;
 
   const progress = duration ? (timeLeft / duration) * 100 : 0;
   const isLowTime = timeLeft < 60;
@@ -127,13 +125,8 @@ export default function AssessmentPage() {
       <FocusTracker attemptId={attemptId} />
       <FullscreenEnforcer attemptId={attemptId} />
 
-      {/* Top Bar */}
-      <AppBar position="static" elevation={1}>
-        <Toolbar>
-          <SecurityIcon sx={{ mr: 1 }} />
-          <Typography variant="h6">Secure Test Environment</Typography>
-        </Toolbar>
-      </AppBar>
+      {/* Top Navigation */}
+      <AppHeader />
 
       <Container maxWidth="md" sx={{ mt: 6 }}>
         <Card elevation={4}>
