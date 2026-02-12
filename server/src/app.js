@@ -7,9 +7,14 @@ const ipRoutes = require("./routes/ipMonitor.routes");
 
 const app = express();
 
+app.set("trust proxy", true);
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://securetest-environment.netlify.app",
+    ],
     credentials: true,
   }),
 );
