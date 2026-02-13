@@ -18,7 +18,12 @@ exports.batchLogEvents = async (req, res) => {
     timestamp: event.timestamp || new Date(),
   }));
 
-  await Event.insertMany(formatted);
+  const insertedEvents = await Event.insertMany(formatted);
 
-  res.json({ message: "Events logged successfully" });
+  res.json({
+    message: "Events logged successfully",
+    totalInserted: insertedEvents.length,
+    suspiciousCount: attempt.suspiciousCount,
+    status: attempt.status,
+  });
 };

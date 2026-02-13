@@ -2,13 +2,13 @@ import { useEffect } from "react";
 import useEventLogger from "../../hooks/useEventLogger";
 import { EVENT_TYPES } from "../../utils/eventTypes";
 
-export default function FullscreenEnforcer({ attemptId }) {
+export default function FullscreenEnforcer({ attemptId, showWarningMessage }) {
   const { logEvent } = useEventLogger(attemptId);
 
   useEffect(() => {
     const handleFullscreenChange = async () => {
       if (!document.fullscreenElement) {
-        // Log exit event
+        showWarningMessage("Do not exit fullscreen mode.");
         logEvent(EVENT_TYPES.FULLSCREEN_EXIT);
       }
     };

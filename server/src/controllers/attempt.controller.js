@@ -1,4 +1,5 @@
 const Attempt = require("../models/Attempt.model");
+const Event = require("../models/Event.model");
 const { getClientIp } = require("../services/ipDetection.service");
 
 exports.startAttempt = async (req, res) => {
@@ -33,9 +34,13 @@ exports.submitAttempt = async (req, res) => {
     }
 
     const now = new Date();
-    const elapsed = (now - attempt.startedAt) / 1000;
 
-    if (elapsed > attempt.duration) {
+    const timerExpiredEvent = await Event.findOne({
+      attemptId,
+      type: "TIMER_EXPIRED",
+    });
+
+    if (timerExpiredEvent) {
       console.log("⏰ Time exceeded — auto submitting");
       attempt.status = "EXPIRED";
     } else {

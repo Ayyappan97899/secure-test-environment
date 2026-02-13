@@ -11,10 +11,6 @@ import {
   Divider,
   TextField,
   Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 import TimerIcon from "@mui/icons-material/Timer";
 
@@ -30,6 +26,7 @@ import FullscreenEnforcer from "../components/enforcement/FullscreenEnforcer";
 import useIpMonitor from "../hooks/useIpMonitor";
 import AppLoader from "../components/common/AppLoader";
 import AppHeader from "../components/common/AppHeader";
+import AppSnackBar from "../components/common/AppSnackBar";
 
 const STORAGE_KEY = "secure_test_end_time";
 
@@ -40,8 +37,8 @@ export default function AssessmentPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [answer, setAnswer] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [suspiciousCount, setSuspiciousCount] = useState(0);
+  const [warningMessage, setWarningMessage] = useState("");
+  const [warningOpen, setWarningOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -86,9 +83,13 @@ export default function AssessmentPage() {
       if (newRemaining <= 0) {
         clearInterval(interval);
         setTimeLeft(0);
+        showWarningMessage("Time is up. Assessment submitted automatically.");
         logEvent(EVENT_TYPES.TIMER_EXPIRED);
         handleSubmit();
       } else {
+        if (newRemaining === 60) {
+          showWarningMessage("⚠ Only 1 minute remaining.");
+        }
         setTimeLeft(newRemaining);
       }
     }, 1000);
@@ -101,18 +102,27 @@ export default function AssessmentPage() {
   const handleNetworkChange = useCallback(
     (res) => {
       if (res.classification === "POTENTIALLY_SUSPICIOUS") {
-        setSuspiciousCount(res.suspiciousCount);
-        setOpen(true);
+        showWarningMessage(
+          "Network change detected. This activity is being logged.",
+        );
       }
 
-      if (res.status === "SUBMITTED") {
-        navigate("/complete");
+      if (res?.suspiciousCount >= 2) {
+        showWarningMessage("Assessment auto-submitted due to violations.");
+        handleSubmit();
       }
     },
-    [navigate],
+    [navigate, handleSubmit],
   );
 
   useIpMonitor(attemptId, handleNetworkChange, 15000);
+
+  // Show Warning Message
+
+  const showWarningMessage = (message) => {
+    setWarningMessage(message);
+    setWarningOpen(true);
+  };
 
   if (loading) return <AppLoader />;
 
@@ -122,9 +132,18 @@ export default function AssessmentPage() {
   return (
     <>
       {/* Security Enforcement */}
-      <ClipboardBlocker attemptId={attemptId} />
-      <FocusTracker attemptId={attemptId} />
-      <FullscreenEnforcer attemptId={attemptId} />
+      <ClipboardBlocker
+        attemptId={attemptId}
+        showWarningMessage={showWarningMessage}
+      />
+      <FocusTracker
+        attemptId={attemptId}
+        showWarningMessage={showWarningMessage}
+      />
+      <FullscreenEnforcer
+        attemptId={attemptId}
+        showWarningMessage={showWarningMessage}
+      />
 
       {/* Top Navigation */}
       <AppHeader />
@@ -189,21 +208,12 @@ export default function AssessmentPage() {
           </CardContent>
         </Card>
       </Container>
-      {/*  Network Change Detected Dialog*/}
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>⚠ Network Change Detected</DialogTitle>
-        <DialogContent>
-          <Typography>Suspicious network activity detected.</Typography>
-          <Typography>Warning Count: {suspiciousCount}/2</Typography>
-          <Typography variant="body2" color="error">
-            After 2 suspicious changes, your assessment will auto-submit.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Continue</Button>
-        </DialogActions>
-      </Dialog>
+      <AppSnackBar
+        open={warningOpen}
+        setOpen={setWarningOpen}
+        message={warningMessage}
+      />
     </>
   );
 }

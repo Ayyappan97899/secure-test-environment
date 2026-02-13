@@ -66,11 +66,6 @@ exports.checkIp = async (req, res) => {
 
       if (classification === "POTENTIALLY_SUSPICIOUS") {
         attempt.suspiciousCount += 1;
-
-        if (attempt.suspiciousCount >= 2) {
-          attempt.status = "SUBMITTED";
-          attempt.submittedAt = new Date();
-        }
       }
     }
 

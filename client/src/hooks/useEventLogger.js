@@ -31,9 +31,9 @@ export default function useEventLogger(attemptId) {
 
     isEventSending.current = true;
     try {
-      await batchLogEvents({ attemptId, events: storedEvents });
+      const res = await batchLogEvents({ attemptId, events: storedEvents });
       clearEvents();
-      console.log("Events sent");
+      console.log("Event data from backend", res?.data);
     } catch (err) {
       console.warn("Send failed, keeping events");
     } finally {
