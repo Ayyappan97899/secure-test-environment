@@ -18,6 +18,8 @@ export default function useIpMonitor(
       try {
         const res = await checkIp(attemptId);
 
+        console.log("IP check result", res);
+
         if (res.changed && res.classification === "POTENTIALLY_SUSPICIOUS") {
           onNetworkChange?.(res);
         }

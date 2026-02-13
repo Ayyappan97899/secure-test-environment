@@ -41,10 +41,10 @@ export default function useEventLogger(attemptId) {
     }
   }, [attemptId]);
 
-  // Event send to backend on interval (10s)
+  // Event send to backend on interval (5s)
   useEffect(() => {
     if (!attemptId) return;
-    const interval = setInterval(eventSends, 10000);
+    const interval = setInterval(eventSends, 5000);
     return () => clearInterval(interval);
   }, [attemptId, eventSends]);
 
