@@ -22,8 +22,6 @@ exports.batchLogEvents = async (req, res) => {
 
   res.json({
     message: "Events logged successfully",
-    totalInserted: insertedEvents.length,
-    suspiciousCount: attempt.suspiciousCount,
-    status: attempt.status,
+    events: insertedEvents,
   });
 };
